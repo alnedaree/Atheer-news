@@ -1,0 +1,6 @@
+{
+  "name": "أثير الإخبارية — إذاعة البث الحي ونشرات X",
+  "description": "منصة إذاعة إخبارية مباشرة لبث القنوات العربية والعالمية من يوتيوب، مع محرر ومذيع نشرات إخبارية صوتية مجمّعة من صفحات وحسابات منصة X (تويتر).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

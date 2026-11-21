@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">أثير الإخبارية</string>
+    <string name="notification_channel_name">تشغيل الإذاعة في الخلفية</string>
+    <string name="notification_channel_desc">إشعار مستمر لإبقاء البث الإذاعي الصوتي المباشر يعمل في الخلفية وعند قفل الشاشة</string>
+    <string name="notification_default_text">البث الإذاعي الصوتي المباشر قيد التشغيل في الخلفية</string>
+    <string name="notification_action_stop">إيقاف الخلفية</string>
+</resources>

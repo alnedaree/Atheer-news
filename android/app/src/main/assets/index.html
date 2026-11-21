@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>أثير الإخبارية — إذاعة صوتية موفّرة للنت ونشرات X</title>
+  <script src="./hls.min.js"></script>
+  <style>
+    :root {
+      --bg: #0B0E13;
+      --surface: #141922;
+      --surface2: #1B2230;
+      --border: rgba(255,255,255,0.1);
+      --text: #F3F4F6;
+      --muted: #9CA3AF;
+      --accent: #DC2626;
+      --accent-hover: #B91C1C;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 84px;
+      -webkit-font-smoothing: antialiased;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(11,14,19,0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--accent); box-shadow: 0 0 10px rgba(220,38,38,0.8); }
+    .brand h1 { font-size: 18px; font-weight: 800; }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      overflow-x: auto;
+    }
+    .tab {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    main { padding: 16px; max-width: 720px; margin: 0 auto; }
+    .studio {
+      background: linear-gradient(180deg, #161C27 0%, #10141C 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .meta {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .freq { color: #F87171; font-family: monospace; font-weight: 700; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .badge-audio {
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.32);
+      color: #6EE7B7;
+    }
+    .badge-youtube {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #FCD34D;
+    }
+    .studio-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .logo-box {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    }
+    .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .station-name { font-size: 22px; font-weight: 800; line-height: 1.25; }
+    .station-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+    .fallback-note {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #FDE68A;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+    .controls { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--accent); border-color: var(--accent); }
+    .btn-primary:active { background: var(--accent-hover); }
+    .btn-play-circle {
+      width: 42px;
+      height: 42px;
+      min-width: 42px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: var(--surface2);
+      color: #fff;
+      font-size: 15px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+    .btn-play-circle.playing {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 4px 14px rgba(220,38,38,0.4);
+    }
+    .btn-del {
+      border: 0;
+      background: transparent;
+      color: #9CA3AF;
+      font-size: 15px;
+      padding: 6px;
+      cursor: pointer;
+    }
+    .player-wrap {
+      margin-top: 14px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #000;
+      aspect-ratio: 16 / 9;
+    }
+    .player-wrap.audio-only {
+      position: fixed;
+      width: 2px;
+      height: 2px;
+      opacity: 0.01;
+      pointer-events: none;
+      bottom: 0;
+      left: 0;
+    }
+    iframe { width: 100%; height: 100%; border: 0; }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 14px 0 10px;
+    }
+    .section-title { font-size: 15px; font-weight: 800; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card.active { border-color: rgba(220,38,38,0.65); background: rgba(220,38,38,0.08); }
+    .card-right { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+    .card-info { min-width: 0; flex: 1; }
+    .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-sub {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .card-actions { display: flex; align-items: center; gap: 6px; }
+    .x-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .x-handle { font-family: monospace; color: #F87171; font-size: 12px; direction: ltr; display: inline-block; }
+    .input-row { display: flex; gap: 8px; margin-top: 10px; }
+    .add-panel {
+      background: var(--surface);
+      border: 1px solid rgba(220,38,38,0.35);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+    .hidden { display: none !important; }
+    .note {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+    .err-msg { color: #FCA5A5; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <audio id="radio-audio" playsinline preload="none" style="display:none;"></audio>
+
+  <header>
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>أثير الإخبارية</h1>
+    </div>
+    <span id="status-label" style="font-size:11px;color:#6EE7B7;font-weight:700;">صوت صرف • تشغيل بالخلفية</span>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="radio">الإذاعة المباشرة</button>
+    <button class="tab" data-tab="x">مصادر منصة X</button>
+    <button class="tab" data-tab="server">وضع الخادم الكامل</button>
+  </nav>
+
+  <main>
+    <section id="view-radio">
+      <div class="studio">
+        <div class="meta">
+          <span class="freq" id="active-freq">98.5 FM</span>
+          <span>·</span>
+          <span id="active-city">الدوحة</span>
+          <span>·</span>
+          <span class="badge badge-audio" id="active-mode-badge">صوت فقط • موفّر للنت</span>
+          <span>·</span>
+          <span id="play-state">جاهز للبث</span>
+        </div>
+        <div class="studio-header">
+          <div class="logo-box">
+            <img id="active-logo" src="" alt="" referrerpolicy="no-referrer" />
+          </div>
+          <div class="station-name" id="active-name">الجزيرة الإخبارية</div>
+        </div>
+        <div class="station-desc" id="active-desc">تغطية إخبارية متواصلة للأحداث العربية والعالمية ببث إذاعي صوتي صرف موفّر للإنترنت.</div>
+        <div id="fallback-note" class="fallback-note hidden"></div>
+        <div class="controls">
+          <button class="btn btn-primary" id="btn-play">▶ تشغيل الإذاعة</button>
+          <button class="btn" id="btn-video">عرض فيديو (يوتيوب)</button>
+          <a class="btn" id="btn-youtube" href="https://www.youtube.com/@aljazeera/live" target="_blank" rel="noreferrer" style="text-decoration:none;">المصدر الرسمي</a>
+        </div>
+        <div id="player-container" class="player-wrap audio-only hidden"></div>
+      </div>
+
+      <div class="section-head">
+        <div class="section-title">القنوات الإخبارية المباشرة</div>
+        <button class="btn" id="btn-toggle-add" style="padding:7px 12px;font-size:12px;">+ إضافة قناة</button>
+      </div>
+
+      <div id="add-channel-panel" class="add-panel hidden">
+        <input id="custom-name" placeholder="اسم القناة أو الإذاعة (مثال: إذاعة مونت كارلو أو الإخبارية)" />
+        <input id="custom-url" dir="ltr" placeholder="رابط بث صوتي (.mp3 / .aac / .m3u8) أو رابط يوتيوب (watch?v=...)" />
+        <div style="font-size:11px;color:#9CA3AF;">يدعم روابط البث الصوتي المباشر (MP3 / AAC / HLS .m3u8) وروابط قنوات وبثوث يوتيوب، ويحفظها تلقائياً في الجهاز.</div>
+        <div id="custom-error" class="err-msg hidden"></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary" id="btn-save-custom" style="flex:1;">حفظ القناة</button>
+          <button class="btn" id="btn-cancel-custom">إلغاء</button>
+        </div>
+      </div>
+
+      <div class="grid" id="channels-grid"></div>
+    </section>
+
+    <section id="view-x" class="hidden">
+      <div class="note">
+        اضغط على أي حساب لمتابعة آخر الأخبار العاجلة مباشرة من منصة X، أو اربط التطبيق بخادم «أثير» المنشور لتوليد نشرات صوتية مجمّعة بالذكاء الاصطناعي.
+      </div>
+      <div class="grid" id="x-grid"></div>
+    </section>
+
+    <section id="view-server" class="hidden">
+      <div class="note">
+        يعمل تطبيق أندرويد بنظام البث الصوتي الصرف (Audio-Only) لتوفير الإنترنت مع دعم التشغيل في الخلفية وقفل الشاشة وMediaSession. لفتح النسخة السحابية الكاملة، أدخل رابط النشر هنا:
+      </div>
+      <div class="input-row">
+        <input id="remote-url" dir="ltr" value="https://ais-pre-hlgzdybqjmsccfgh7yzoxc-70433494319.europe-west2.run.app" placeholder="https://..." />
+        <button class="btn btn-primary" id="btn-open-remote">فتح</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const CUSTOM_STORAGE_KEY = 'atheer_android_custom_channels_v1';
+    const YOUTUBE_FAVICON = 'https://www.google.com/s2/favicons?domain=youtube.com&sz=128';
+
+    const DEFAULT_CHANNELS = [
+      {
+        id: 'aljazeera',
+        name: 'الجزيرة الإخبارية',
+        city: 'الدوحة',
+        freq: '98.5 FM',
+        audioStreamUrl: 'https://live-hls-audio-web-aja.getaj.net/VOICE-AJA/index.m3u8',
+        audioStreamFormat: 'hls',
+        sourceKind: 'video',
+        videoId: 'FelGGahCbS8',
+        url: 'https://www.youtube.com/@aljazeera/live',
+        logoUrl: 'https://yt3.googleusercontent.com/76leFi_fmRjs0-azxyhbTCBryfo_WfYg7nlItMPBGM9ZTOUxWCli0F3_y4QYR24ec_KfcO_V7aw=s900-c-k-c0x00ffffff-no-rj',
+        fallbackLogoUrl: 'https://www.google.com/s2/favicons?domain=aljazeera.net&sz=128',
+        desc: 'تغطية إخبارية متواصلة للأحداث العربية والعالمية ببث إذاعي صوتي صرف موفّر للبيانات.'
+      },
+      {
+        id: 'alarabiya',
+        name: 'العربية الإخبارية',
+        city: 'الرياض',
+        freq: '101.3 FM',
+        audioStreamUrl: 'https://live.alarabiya.net/alarabiapublish/alarabiya_audio/playlist.m3u8',
+        audioStreamFormat: 'hls',
+        sourceKind: 'video',
+        videoId: 'n7eQejkXbnM',
+        url: 'https://www.youtube.com/@AlArabiya/live',
+        logoUrl: 'https://yt3.googleusercontent.com/GoZXY6BOD_V0vV3ok3fAzIbNMx3og4z2Jd2Up0BnocvBn35rMB4NG3vMOdzOpQ4-HFBUfDQ-JQ=s900-c-k-c0x00ffffff-no-rj',
+        fallbackLogoUrl: 'https://www.google.com/s2/favicons?domain=alarabiya.net&sz=128',
+        desc: 'نشرات أخبار وتغطيات سياسية واقتصادية مباشرة عبر البث الصوتي الصرف من استوديوهات العربية.'
+      },
+      {
+        id: 'alhadath',
+        name: 'الحدث مباشر',
+        city: 'الرياض',
+        freq: '102.7 FM',
+        audioStreamUrl: 'https://live.alarabiya.net/alarabiapublish/alhadath_audio/playlist.m3u8',
+        audioStreamFormat: 'hls',
+        sourceKind: 'video',
+        videoId: 'au8t81S0tag',
+        url: 'https://www.youtube.com/@AlHadath/live',
+        logoUrl: 'https://yt3.googleusercontent.com/ehhpuQeVHO0g3kIPkmwrw1x0fLqDk7RyWH733oe4wcKb_1jBEMvGt4WVlQEEzcTCL6zq01K5HQ=s900-c-k-c0x00ffffff-no-rj',
+        fallbackLogoUrl: 'https://www.google.com/s2/favicons?domain=alhadath.net&sz=128',
+        desc: 'متابعة ميدانية عاجلة وتطورات لحظية من قلب الأحداث الإقليمية والدولية ببث صوتي مباشر.'
+      },
+      {
+        id: 'skynewsarabia',
+        name: 'سكاي نيوز عربية',
+        city: 'أبوظبي',
+        freq: '104.1 FM',
+        audioStreamUrl: 'https://radio.skynewsarabia.com/stream/radio/skynewsarabia',
+        audioStreamFormat: 'mp3',
+        sourceKind: 'video',
+        videoId: 'ppgTP8xQQsM',
+        url: 'https://www.youtube.com/@SkyNewsArabia/live',
+        logoUrl: 'https://yt3.googleusercontent.com/C_tTYi9T3TlVewh6A5Yon_NOd3XxSjAduqRCqhaUcHkNGt67zyD0Cb6jJePYZTUMw-0VQt9TCA=s900-c-k-c0x00ffffff-no-rj',
+        fallbackLogoUrl: 'https://www.google.com/s2/favicons?domain=skynewsarabia.com&sz=128',
+        desc: 'البث الإذاعي الصوتي المباشر للأخبار العاجلة والتحليلات السياسية وأسواق المال.'
+      },
+      {
+        id: 'bbcarabic',
+        name: 'بي بي سي عربي',
+        city: 'لندن',
+        freq: '94.8 FM',
+        audioStreamUrl: 'https://stream.live.vc.bbcmedia.co.uk/bbc_arabic_radio',
+        audioStreamFormat: 'mp3',
+        sourceKind: 'video',
+        videoId: 'O1pGmVtj2Y8',
+        url: 'https://www.youtube.com/@BBCNewsArabic/live',
+        logoUrl: 'https://yt3.googleusercontent.com/lNnHQPUKQCFpFV2bIMEfexakkowja2RCVOsRRV8eOCFslwk_a4tRR5oNwg_S67J9zyYP_wAw=s900-c-k-c0x00ffffff-no-rj',
+        fallbackLogoUrl: 'https://www.google.com/s2/favicons?domain=bbc.com&sz=128',
+        desc: 'الإذاعة الإخبارية المباشرة ونشرات الأخبار والتحقيقات من استوديوهات بي بي سي في لندن.'
+      },
+      {
+        id: 'montecarlo',
+        name: 'مونت كارلو الدولية',
+        city: 'باريس',
+        freq: '93.5 FM',
+        audioStreamUrl: 'https://montecarlodoualiya128k.ice.infomaniak.ch/mc-doualiya.mp3',
+        audioStreamFormat: 'mp3',
+        sourceKind: 'channel',
+        channelId: 'UCzyAonkXMAIi8bp7_05PV-Q',
+        url: 'https://www.youtube.com/@mc_doualiya/live',
+        logoUrl: 'https://yt3.googleusercontent.com/ytc/AIdro_lmgD36YGN4Chk1XRQe8-Fo5LvGKDgFu_-RtIx7dbNkZ8FA=s900-c-k-c0x00ffffff-no-rj',
+        fallbackLogoUrl: 'https://www.google.com/s2/favicons?domain=mc-doualiya.com&sz=128',
+        desc: 'إذاعة مونت كارلو الدولية الإخبارية باللغة العربية ببث صوتي مباشر نقي وموفّر للإنترنت.'
+      },
+      {
+        id: 'asharq',
+        name: 'الشرق للأخبار',
+        city: 'الرياض',
+        freq: '105.9 FM',
+        sourceKind: 'video',
+        videoId: 'f6VpkfV7m4Y',
+        url: 'https://www.youtube.com/@AsharqNews/live',
+        logoUrl: 'https://yt3.googleusercontent.com/ytc/AIdro_kZQjNcecj0_Z8VHxjNt6zKzLtCPpnNRF0rSjyNXm4AZg=s900-c-k-c0x00ffffff-no-rj',
+        fallbackLogoUrl: 'https://www.google.com/s2/favicons?domain=asharq.com&sz=128',
+        desc: 'تغطية معمّقة للأخبار السياسية والاقتصاد والأسواق العالمية بالشراكة مع بلومبرغ.'
+      },
+      {
+        id: 'ajmubasher',
+        name: 'الجزيرة مباشر',
+        city: 'الدوحة',
+        freq: '99.1 FM',
+        sourceKind: 'video',
+        videoId: 'N8xxOD0nT1Y',
+        url: 'https://www.youtube.com/watch?v=N8xxOD0nT1Y',
+        logoUrl: 'https://yt3.googleusercontent.com/h0_bBdVgCAXIPJFnQ4hZtE87cDY_qO7rkDAue8qXdmOFxZ5NaO3AFD1uCUcst-EsBcGJ8zl8EQ=s900-c-k-c0x00ffffff-no-rj',
+        fallbackLogoUrl: 'https://www.google.com/s2/favicons?domain=aljazeeramubasher.net&sz=128',
+        desc: 'نقل حي ومباشر للمؤتمرات الصحفية والفعاليات والتغطيات الميدانية المفتوحة.'
+      },
+      {
+        id: 'france24ar',
+        name: 'فرانس 24 العربية',
+        city: 'باريس',
+        freq: '96.2 FM',
+        sourceKind: 'video',
+        videoId: '93g513Uth98',
+        url: 'https://www.youtube.com/channel/UCdTyuXgmJkG_O8_75eqej-w/live',
+        logoUrl: 'https://yt3.googleusercontent.com/ttCZI4HzbwlKBLe-hgRNy8N3QyymY4FOqb3Todsh0ic8Ms-8SbZ9cN0IQZhTEiINQMQtIXef=s900-c-k-c0x00ffffff-no-rj',
+        fallbackLogoUrl: 'https://www.google.com/s2/favicons?domain=france24.com&sz=128',
+        desc: 'بث إخباري دولي من باريس يغطي الشؤون الأوروبية والمغاربية والدولية.'
+      }
+    ];
+
+    const X_SOURCES = [
+      { handle: 'AJABreaking', label: 'الجزيرة - عاجل' },
+      { handle: 'AlArabiya_Brk', label: 'العربية عاجل' },
+      { handle: 'AlHadath_Brk', label: 'الحدث عاجل' },
+      { handle: 'SkyNewsArabia_B', label: 'سكاي نيوز عربية - عاجل' },
+      { handle: 'AsharqNewsBrk', label: 'الشرق للأخبار - عاجل' },
+      { handle: 'ReutersArabic', label: 'رويترز عربي' },
+      { handle: 'CNBCArabia', label: 'CNBC عربية' },
+      { handle: 'AsharqBusiness', label: 'اقتصاد الشرق' },
+      { handle: 'aitnews', label: 'البوابة العربية للأخبار التقنية' }
+    ];
+
+    function loadCustomChannels() {
+      try {
+        const raw = window.localStorage.getItem(CUSTOM_STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function saveCustomChannels(list) {
+      try {
+        window.localStorage.setItem(CUSTOM_STORAGE_KEY, JSON.stringify(list));
+      } catch (_) {}
+    }
+
+    let customChannels = loadCustomChannels();
+    function getAllChannels() {
+      return DEFAULT_CHANNELS.concat(customChannels);
+    }
+
+    let active = DEFAULT_CHANNELS[0];
+    let playing = false;
+    let showVideo = false;
+    let hlsInstance = null;
+    let currentAudioKey = '';
+    const audioFailedMap = {};
+    let fallbackNotice = '';
+
+    const audioEl = document.getElementById('radio-audio');
+
+    function hasYouTube(ch) {
+      return Boolean(ch.videoId || ch.channelId);
+    }
+
+    function isHlsChannel(ch) {
+      if (!ch.audioStreamUrl) return false;
+      return ch.audioStreamFormat === 'hls' || ch.audioStreamUrl.toLowerCase().includes('.m3u8');
+    }
+
+    function getChannelMode(ch) {
+      const hasAudio = Boolean(ch.audioStreamUrl);
+      if (hasAudio && (!audioFailedMap[ch.id] || !hasYouTube(ch))) {
+        return 'audio';
+      }
+      return 'youtube';
+    }
+
+    function getActiveEngineMode() {
+      if (showVideo && hasYouTube(active)) return 'youtube';
+      return getChannelMode(active);
+    }
+
+    function bindLogoFallback(imgEl, primaryUrl, fallbackUrl) {
+      const secondary = fallbackUrl || YOUTUBE_FAVICON;
+      imgEl.onerror = () => {
+        if (imgEl.src !== secondary) {
+          imgEl.src = secondary;
+        } else if (imgEl.src !== YOUTUBE_FAVICON) {
+          imgEl.src = YOUTUBE_FAVICON;
+        }
+      };
+      imgEl.src = primaryUrl || secondary;
+    }
+
+    function stopAudioPlayer() {
+      if (hlsInstance) {
+        try { hlsInstance.destroy(); } catch (_) {}
+        hlsInstance = null;
+      }
+      audioEl.pause();
+      audioEl.removeAttribute('src');
+      audioEl.load();
+      currentAudioKey = '';
+    }
+
+    function handleAudioStreamFailure(ch) {
+      if (active.id !== ch.id) return;
+      stopAudioPlayer();
+      if (hasYouTube(ch)) {
+        audioFailedMap[ch.id] = true;
+        fallbackNotice = 'تعذّر الاتصال بالبث الصوتي المباشر؛ تم التحويل تلقائياً إلى بث يوتيوب الاحتياطي.';
+      } else {
+        fallbackNotice = 'تعذّر تشغيل رابط البث الصوتي. تحقق من الرابط أو اتصال الإنترنت.';
+        playing = false;
+      }
+      renderStudio();
+    }
+
+    function startAudioPlayer(ch) {
+      const key = ch.id + '|' + ch.audioStreamUrl;
+      if (currentAudioKey === key && !audioEl.paused) return;
+      stopAudioPlayer();
+      currentAudioKey = key;
+
+      const streamUrl = ch.audioStreamUrl;
+      if (isHlsChannel(ch) && typeof window.Hls !== 'undefined' && window.Hls.isSupported()) {
+        const hls = new window.Hls({
+          lowLatencyMode: true,
+          backBufferLength: 30,
+          maxBufferLength: 20
+        });
+        hlsInstance = hls;
+        let recovered = false;
+        hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
+          audioEl.play().catch(() => {});
+        });
+        hls.on(window.Hls.Events.ERROR, (_evt, data) => {
+          if (!data || !data.fatal) return;
+          if (data.type === window.Hls.ErrorTypes.MEDIA_ERROR && !recovered) {
+            recovered = true;
+            hls.recoverMediaError();
+            return;
+          }
+          handleAudioStreamFailure(ch);
+        });
+        hls.loadSource(streamUrl);
+        hls.attachMedia(audioEl);
+      } else {
+        audioEl.src = streamUrl;
+        audioEl.load();
+        audioEl.play().catch(() => {});
+      }
+    }
+
+    audioEl.addEventListener('error', () => {
+      if (playing && getActiveEngineMode() === 'audio') {
+        handleAudioStreamFailure(active);
+      }
+    });
+
+    function syncMediaSession(mode) {
+      const modeText = mode === 'audio' ? 'صوت فقط • موفّر للنت' : 'بث يوتيوب';
+      try {
+        if ('mediaSession' in navigator && typeof MediaMetadata !== 'undefined') {
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: active.name,
+            artist: active.city + ' · ' + modeText,
+            album: 'أثير الإخبارية — إذاعة البث الحي',
+            artwork: [
+              { src: active.logoUrl || YOUTUBE_FAVICON, sizes: '192x192', type: 'image/png' }
+            ]
+          });
+          navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+          navigator.mediaSession.setActionHandler('play', () => { playing = true; renderStudio(); });
+          navigator.mediaSession.setActionHandler('pause', () => { playing = false; renderStudio(); });
+          navigator.mediaSession.setActionHandler('stop', () => { playing = false; renderStudio(); });
+          navigator.mediaSession.setActionHandler('nexttrack', () => { switchChannelByOffset(1); });
+          navigator.mediaSession.setActionHandler('previoustrack', () => { switchChannelByOffset(-1); });
+        }
+      } catch (_) {}
+
+      try {
+        if (window.AtheerAndroid && typeof window.AtheerAndroid.updatePlaybackState === 'function') {
+          window.AtheerAndroid.updatePlaybackState(active.name + ' · ' + modeText, playing);
+        }
+      } catch (_) {}
+    }
+
+    function switchChannelByOffset(delta) {
+      const list = getAllChannels();
+      if (!list.length) return;
+      const idx = list.findIndex((c) => c.id === active.id);
+      const next = list[(idx + delta + list.length) % list.length];
+      delete audioFailedMap[next.id];
+      fallbackNotice = '';
+      active = next;
+      playing = true;
+      renderStudio();
+    }
+
+    // Hook invoked by Native Android MediaSession controls (lock screen / Bluetooth)
+    window.__atheerMediaAction = function(action) {
+      if (action === 'play') { playing = true; renderStudio(); }
+      else if (action === 'pause') { playing = false; renderStudio(); }
+      else if (action === 'toggle') { playing = !playing; renderStudio(); }
+      else if (action === 'next') { switchChannelByOffset(1); }
+      else if (action === 'prev') { switchChannelByOffset(-1); }
+    };
+
+    function buildEmbedSrc(ch) {
+      const origin = encodeURIComponent(window.location.origin);
+      if (ch.sourceKind === 'channel' && ch.channelId) {
+        return 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(ch.channelId) + '&autoplay=1&playsinline=1&rel=0&modestbranding=1&origin=' + origin;
+      }
+      return 'https://www.youtube.com/embed/' + encodeURIComponent(ch.videoId) + '?autoplay=1&playsinline=1&rel=0&modestbranding=1&origin=' + origin;
+    }
+
+    function renderStudio() {
+      const mode = getActiveEngineMode();
+      const canShowVideo = hasYouTube(active);
+      if (!canShowVideo) showVideo = false;
+
+      document.getElementById('active-freq').textContent = active.freq;
+      document.getElementById('active-city').textContent = active.city;
+      document.getElementById('active-name').textContent = active.name;
+      document.getElementById('active-desc').textContent = active.desc;
+
+      const badge = document.getElementById('active-mode-badge');
+      badge.className = 'badge ' + (mode === 'audio' ? 'badge-audio' : 'badge-youtube');
+      badge.textContent = mode === 'audio'
+        ? 'صوت فقط • موفّر للنت'
+        : (audioFailedMap[active.id] ? 'بث يوتيوب (احتياطي)' : 'بث يوتيوب');
+
+      const ytBtn = document.getElementById('btn-youtube');
+      ytBtn.href = active.url || active.audioStreamUrl || '#';
+      ytBtn.textContent = canShowVideo ? 'فتح في يوتيوب' : 'رابط البث الصوتي';
+
+      const videoBtn = document.getElementById('btn-video');
+      videoBtn.classList.toggle('hidden', !canShowVideo);
+      videoBtn.textContent = showVideo
+        ? (active.audioStreamUrl ? 'العودة للصوت فقط' : 'إخفاء الفيديو')
+        : 'عرض فيديو (يوتيوب)';
+
+      const noteBox = document.getElementById('fallback-note');
+      if (fallbackNotice) {
+        noteBox.textContent = fallbackNotice;
+        noteBox.classList.remove('hidden');
+      } else {
+        noteBox.classList.add('hidden');
+      }
+
+      document.getElementById('play-state').textContent = playing ? 'يبث الآن على الهواء' : 'جاهز للبث';
+      document.getElementById('btn-play').textContent = playing ? '⏸ إيقاف مؤقت' : '▶ تشغيل الإذاعة';
+
+      const activeLogo = document.getElementById('active-logo');
+      activeLogo.alt = 'شعار ' + active.name;
+      bindLogoFallback(activeLogo, active.logoUrl, active.fallbackLogoUrl);
+
+      const container = document.getElementById('player-container');
+      if (playing && mode === 'audio' && active.audioStreamUrl) {
+        container.classList.add('hidden');
+        container.dataset.src = '';
+        container.innerHTML = '';
+        startAudioPlayer(active);
+      } else if (playing && mode === 'youtube' && canShowVideo) {
+        stopAudioPlayer();
+        container.classList.remove('hidden');
+        container.classList.toggle('audio-only', !showVideo);
+        const src = buildEmbedSrc(active);
+        if (container.dataset.src !== src) {
+          container.dataset.src = src;
+          container.innerHTML = '<iframe src="' + src + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+        }
+      } else {
+        stopAudioPlayer();
+        container.classList.add('hidden');
+        container.dataset.src = '';
+        container.innerHTML = '';
+      }
+
+      syncMediaSession(mode);
+      renderChannels();
+    }
+
+    function renderChannels() {
+      const grid = document.getElementById('channels-grid');
+      grid.innerHTML = '';
+      getAllChannels().forEach((ch) => {
+        const isCurrentPlaying = ch.id === active.id && playing;
+        const chMode = getChannelMode(ch);
+        const card = document.createElement('div');
+        card.className = 'card' + (ch.id === active.id ? ' active' : '');
+
+        const rightWrap = document.createElement('div');
+        rightWrap.className = 'card-right';
+
+        const logoBox = document.createElement('div');
+        logoBox.className = 'logo-box';
+        const img = document.createElement('img');
+        img.alt = 'شعار ' + ch.name;
+        img.loading = 'lazy';
+        img.referrerPolicy = 'no-referrer';
+        bindLogoFallback(img, ch.logoUrl, ch.fallbackLogoUrl);
+        logoBox.appendChild(img);
+
+        const info = document.createElement('div');
+        info.className = 'card-info';
+        const h3 = document.createElement('h3');
+        h3.textContent = ch.name;
+
+        const sub = document.createElement('div');
+        sub.className = 'card-sub';
+        const metaText = document.createElement('span');
+        metaText.textContent = ch.freq + ' · ' + ch.city;
+        const modeTag = document.createElement('span');
+        modeTag.className = 'badge ' + (chMode === 'audio' ? 'badge-audio' : 'badge-youtube');
+        modeTag.textContent = chMode === 'audio'
+          ? 'صوت فقط • موفّر للنت'
+          : (audioFailedMap[ch.id] ? 'بث يوتيوب (احتياطي)' : 'بث يوتيوب');
+        sub.appendChild(modeTag);
+        sub.appendChild(metaText);
+
+        info.appendChild(h3);
+        info.appendChild(sub);
+
+        rightWrap.appendChild(logoBox);
+        rightWrap.appendChild(info);
+
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
+
+        if (ch.isCustom) {
+          const delBtn = document.createElement('button');
+          delBtn.className = 'btn-del';
+          delBtn.type = 'button';
+          delBtn.textContent = '✕';
+          delBtn.setAttribute('aria-label', 'حذف ' + ch.name);
+          delBtn.onclick = (e) => {
+            e.stopPropagation();
+            customChannels = customChannels.filter((item) => item.id !== ch.id);
+            saveCustomChannels(customChannels);
+            if (active.id === ch.id) {
+              active = DEFAULT_CHANNELS[0];
+              playing = false;
+            }
+            renderStudio();
+          };
+          actions.appendChild(delBtn);
+        }
+
+        const playBtn = document.createElement('button');
+        playBtn.type = 'button';
+        playBtn.className = 'btn-play-circle' + (isCurrentPlaying ? ' playing' : '');
+        playBtn.textContent = isCurrentPlaying ? '⏸' : '▶';
+        playBtn.setAttribute('aria-label', isCurrentPlaying ? 'إيقاف مؤقت' : 'تشغيل ' + ch.name);
+        playBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (isCurrentPlaying) {
+            playing = false;
+          } else {
+            delete audioFailedMap[ch.id];
+            fallbackNotice = '';
+            active = ch;
+            playing = true;
+          }
+          renderStudio();
+        };
+        actions.appendChild(playBtn);
+
+        card.appendChild(rightWrap);
+        card.appendChild(actions);
+        card.onclick = () => {
+          if (isCurrentPlaying) {
+            playing = false;
+          } else {
+            delete audioFailedMap[ch.id];
+            fallbackNotice = '';
+            active = ch;
+            playing = true;
+          }
+          renderStudio();
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    function parseChannelInput(raw) {
+      const value = raw.trim();
+      if (!value) return null;
+      if (/^UC[a-zA-Z0-9_-]{20,26}$/.test(value)) {
+        return { sourceKind: 'channel', channelId: value, url: 'https://www.youtube.com/channel/' + value + '/live' };
+      }
+      try {
+        const u = new URL(value);
+        const host = u.hostname.toLowerCase().replace(/^www\./, '');
+        if (host === 'youtu.be') {
+          const vid = u.pathname.replace(/^\//, '').split('/')[0];
+          if (/^[a-zA-Z0-9_-]{11}$/.test(vid)) {
+            return { sourceKind: 'video', videoId: vid, url: 'https://www.youtube.com/watch?v=' + vid };
+          }
+        }
+        if (host.endsWith('youtube.com')) {
+          const vParam = u.searchParams.get('v');
+          if (vParam && /^[a-zA-Z0-9_-]{11}$/.test(vParam)) {
+            return { sourceKind: 'video', videoId: vParam, url: 'https://www.youtube.com/watch?v=' + vParam };
+          }
+          const liveMatch = u.pathname.match(/^\/(?:live|embed)\/([a-zA-Z0-9_-]{11})/);
+          if (liveMatch) {
+            return { sourceKind: 'video', videoId: liveMatch[1], url: 'https://www.youtube.com/watch?v=' + liveMatch[1] };
+          }
+          const chMatch = u.pathname.match(/^\/channel\/(UC[a-zA-Z0-9_-]{20,26})/);
+          if (chMatch) {
+            return { sourceKind: 'channel', channelId: chMatch[1], url: 'https://www.youtube.com/channel/' + chMatch[1] + '/live' };
+          }
+          return null;
+        }
+        if ((u.protocol === 'https:' || u.protocol === 'http:') && host.includes('.')) {
+          const lower = (u.pathname + u.search).toLowerCase();
+          const isHls = lower.includes('.m3u8');
+          const isAac = /\.(?:aac|aacp|m4a)(?:$|[?#&])/.test(lower);
+          const isMp3 = /\.(?:mp3|ogg|opus|wav|pls)(?:$|[?#&])/.test(lower);
+          const looksRadio = /(?:^|\.)(?:stream|radio|ice|live|audio|fm)\./i.test(host) || /\/(?:stream|radio|live|listen|audio)/i.test(lower);
+          if (isHls || isAac || isMp3 || looksRadio) {
+            return {
+              sourceKind: 'audio',
+              audioStreamUrl: u.toString(),
+              audioStreamFormat: isHls ? 'hls' : (isAac ? 'aac' : 'mp3'),
+              host: host,
+              url: u.toString()
+            };
+          }
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    async function fetchChannelLogo(parsed) {
+      if (parsed.sourceKind === 'audio' && parsed.host) {
+        return 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(parsed.host) + '&sz=128';
+      }
+      if (parsed.sourceKind === 'video' && parsed.videoId) {
+        let thumb = 'https://i.ytimg.com/vi/' + parsed.videoId + '/hqdefault.jpg';
+        try {
+          const r = await fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent(parsed.url) + '&format=json');
+          if (r.ok) {
+            const j = await r.json();
+            if (j && typeof j.thumbnail_url === 'string' && j.thumbnail_url.startsWith('https://')) {
+              thumb = j.thumbnail_url;
+            }
+          }
+        } catch (_) {}
+        return thumb;
+      }
+      return YOUTUBE_FAVICON;
+    }
+
+    function renderX() {
+      const grid = document.getElementById('x-grid');
+      grid.innerHTML = '';
+      X_SOURCES.forEach((src) => {
+        const row = document.createElement('div');
+        row.className = 'x-item';
+        row.innerHTML = '<div><div style="font-weight:700;font-size:14px;">' + src.label + '</div><span class="x-handle">@' + src.handle + '</span></div><a class="btn" style="text-decoration:none;" href="https://x.com/' + src.handle + '" target="_blank" rel="noreferrer">متابعة</a>';
+        grid.appendChild(row);
+      });
+    }
+
+    document.getElementById('btn-play').onclick = () => {
+      if (!playing) {
+        delete audioFailedMap[active.id];
+        fallbackNotice = '';
+      }
+      playing = !playing;
+      renderStudio();
+    };
+    document.getElementById('btn-video').onclick = () => {
+      showVideo = !showVideo;
+      renderStudio();
+    };
+    document.getElementById('btn-open-remote').onclick = () => {
+      const val = document.getElementById('remote-url').value.trim();
+      if (val.startsWith('http://') || val.startsWith('https://')) {
+        window.location.href = val;
+      }
+    };
+
+    const addPanel = document.getElementById('add-channel-panel');
+    const errBox = document.getElementById('custom-error');
+    document.getElementById('btn-toggle-add').onclick = () => {
+      addPanel.classList.toggle('hidden');
+      errBox.classList.add('hidden');
+    };
+    document.getElementById('btn-cancel-custom').onclick = () => {
+      addPanel.classList.add('hidden');
+      errBox.classList.add('hidden');
+    };
+    document.getElementById('btn-save-custom').onclick = async () => {
+      const nameInput = document.getElementById('custom-name');
+      const urlInput = document.getElementById('custom-url');
+      const chName = nameInput.value.trim();
+      const parsed = parseChannelInput(urlInput.value);
+      if (!chName) {
+        errBox.textContent = 'يرجى إدخال اسم القناة أو الإذاعة.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+      if (!parsed) {
+        errBox.textContent = 'أدخل رابط بث صوتي مباشر (.mp3 / .aac / .m3u8) أو رابط يوتيوب (watch?v=... أو channel/UC...).';
+        errBox.classList.remove('hidden');
+        return;
+      }
+      errBox.classList.add('hidden');
+      const logoUrl = await fetchChannelLogo(parsed);
+      const newCh = {
+        id: 'custom-' + Date.now(),
+        name: chName,
+        city: parsed.sourceKind === 'audio' ? 'إذاعة مخصّصة' : 'بث مخصّص',
+        freq: (88.5 + (customChannels.length % 18)).toFixed(1) + ' FM',
+        sourceKind: parsed.sourceKind,
+        audioStreamUrl: parsed.audioStreamUrl || '',
+        audioStreamFormat: parsed.audioStreamFormat || '',
+        videoId: parsed.videoId || '',
+        channelId: parsed.channelId || '',
+        url: parsed.url,
+        logoUrl: logoUrl,
+        fallbackLogoUrl: YOUTUBE_FAVICON,
+        desc: parsed.sourceKind === 'audio'
+          ? 'بث إذاعي صوتي صرف موفّر للإنترنت.'
+          : 'قناة بث مباشر مضافة عبر يوتيوب.',
+        isCustom: true
+      };
+      customChannels = [newCh].concat(customChannels);
+      saveCustomChannels(customChannels);
+      nameInput.value = '';
+      urlInput.value = '';
+      addPanel.classList.add('hidden');
+      fallbackNotice = '';
+      active = newCh;
+      playing = true;
+      renderStudio();
+    };
+
+    document.querySelectorAll('.tab').forEach((btn) => {
+      btn.onclick = () => {
+        document.querySelectorAll('.tab').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const target = btn.dataset.tab;
+        document.getElementById('view-radio').classList.toggle('hidden', target !== 'radio');
+        document.getElementById('view-x').classList.toggle('hidden', target !== 'x');
+        document.getElementById('view-server').classList.toggle('hidden', target !== 'server');
+      };
+    });
+
+    renderStudio();
+    renderX();
+  </script>
+</body>
+</html>
